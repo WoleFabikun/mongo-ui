@@ -1,13 +1,28 @@
+/* eslint-disable @next/next/no-img-element */
 import { useEffect, useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 
+interface Attack {
+  name: string;
+  damage: string;
+}
+
+interface Pokemon {
+  name: string;
+  imageUrl?: string;
+  types: string[];
+  hp: string;
+  attacks: Attack[];
+}
+
+
 export default function Component() {
-  const [pokemonData, setPokemonData] = useState([])
+  const [pokemonData, setPokemonData] = useState<Pokemon[]>([])  // Type the state
 
   useEffect(() => {
     const fetchPokemonData = async () => {
       try {
-        const response = await fetch("/api/getPokemon", { // Replace with your actual API route
+        const response = await fetch("/api/getPokemon", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -60,5 +75,5 @@ export default function Component() {
         ))}
       </div>
     </div>
-  )
+  ) 
 }
