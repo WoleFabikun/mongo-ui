@@ -2,27 +2,24 @@
 
 import { useState } from "react"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import MultiSelectFormField from "@/components/ui/multiSelect"
 
-// Define the Pokemon interface
 interface Pokemon {
   name: string;
   imageUrl?: string;
-  types: string[];
-  hp: string;
-  attacks: {
+  types?: string[]; // Mark types as optional
+  hp?: string;
+  attacks?: {
     name: string;
     damage: string;
   }[];
 }
 
 export default function Component() {
-  const [series, setSeries] = useState("")
+  const [types, setTypes] = useState<string[]>([])
   const [rarity, setRarity] = useState("")
-  const [type, setType] = useState("")
-  const [pokemon, setPokemon] = useState<Pokemon | null>(null)
+  const [pokemonList, setPokemonList] = useState<Pokemon[]>([]) // Change to an array
 
   const handleSearch = async (e: { preventDefault: () => void }) => {
     e.preventDefault()
@@ -32,17 +29,17 @@ export default function Component() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ series, rarity, type }),
+        body: JSON.stringify({ types, rarity }),  // Send types as an array
       });
       const data = await response.json();
       if (data.documents && data.documents.length > 0) {
-        setPokemon(data.documents[0]);
+        setPokemonList(data.documents); // Store the array of Pokémon
       } else {
-        setPokemon(null);
+        setPokemonList([]);
       }
     } catch (error) {
       console.error("Error fetching Pokemon data:", error);
-      setPokemon(null);
+      setPokemonList([]);
     }
   }
 
@@ -51,75 +48,70 @@ export default function Component() {
       <Card className="w-full max-w-md p-6 bg-white shadow-lg rounded-lg">
         <CardHeader>
           <CardTitle className="text-2xl font-bold">Pokemon Search</CardTitle>
-          <CardDescription>Query Pokemon based on Series, Rarity, and Type.</CardDescription>
+          <CardDescription>Query Pokemon based on Types and Rarity.</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSearch} className="mb-6 space-y-4">
-            <Select onValueChange={setSeries}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select Series" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Sun & Moon">Sun & Moon</SelectItem>
-                <SelectItem value="Sword & Shield">Sword & Shield</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select onValueChange={setRarity}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select Rarity" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Common">Common</SelectItem>
-                <SelectItem value="Uncommon">Uncommon</SelectItem>
-                <SelectItem value="Rare">Rare</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select onValueChange={setType}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select Type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Grass">Grass</SelectItem>
-                <SelectItem value="Fire">Fire</SelectItem>
-                <SelectItem value="Water">Water</SelectItem>
-              </SelectContent>
-            </Select>
+            <MultiSelectFormField
+              options={[
+                { label: "Grass", value: "Grass" },
+                { label: "Fire", value: "Fire" },
+                { label: "Water", value: "Water" },
+                { label: "Electric", value: "Electric" },
+                { label: "Psychic", value: "Psychic" },
+                { label: "Fighting", value: "Fighting" },
+                { label: "Dark", value: "Dark" },
+                { label: "Steel", value: "Steel" },
+                { label: "Fairy", value: "Fairy" },
+                { label: "Dragon", value: "Dragon" },
+                // Add more types as needed
+              ]}
+              placeholder="Select Types"
+              onValueChange={setTypes}
+            />
 
             <Button type="submit" className="mt-4 w-full">
               Search
             </Button>
           </form>
-          {pokemon && (
-            <div className="grid grid-cols-2 gap-4">
-              {pokemon.imageUrl && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={pokemon.imageUrl}
-                  alt={pokemon.name}
-                  width={200}
-                  height={200}
-                  className="rounded-lg"
-                  style={{ aspectRatio: "200/200", objectFit: "cover" }}
-                />
-              )}
-              <div>
-                <h3 className="text-xl font-bold">{pokemon.name}</h3>
-                <p className="text-gray-500 mb-2">Type: {pokemon.types.join(", ")}</p>
-                <p className="text-gray-500 mb-2">HP: {pokemon.hp}</p>
-                <div className="grid grid-cols-2 gap-2">
-                  {pokemon.attacks.map((attack, idx) => (
-                    <div key={idx} className="flex items-center">
-                      <span className="font-medium">{attack.name}:</span>
-                      <span className="ml-2">{attack.damage}</span>
+          
+          {pokemonList.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {pokemonList.map((pokemon, idx) => (
+                <Card key={idx} className="mb-4">
+                  {pokemon.imageUrl && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={pokemon.imageUrl}
+                      alt={pokemon.name}
+                      width={200}
+                      height={200}
+                      className="rounded-lg"
+                      style={{ aspectRatio: "200/200", objectFit: "cover" }}
+                    />
+                  )}
+                  <CardContent>
+                    <h3 className="text-xl font-bold">{pokemon.name}</h3>
+                    {pokemon.types && pokemon.types.length > 0 && (
+                      <p className="text-gray-500 mb-2">Type: {pokemon.types.join(", ")}</p>
+                    )}
+                    {pokemon.hp && (
+                      <p className="text-gray-500 mb-2">HP: {pokemon.hp}</p>
+                    )}
+                    <h4 className="font-semibold mt-2">Attacks:</h4>
+                    <div className="grid grid-cols-2 gap-2">
+                      {pokemon.attacks?.map((attack, attackIdx) => (
+                        <div key={attackIdx} className="flex items-center">
+                          <span className="font-medium">{attack.name}:</span>
+                          <span className="ml-2">{attack.damage}</span>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              </div>
+                  </CardContent>
+                </Card>
+              ))}
             </div>
-          )}
-          {!pokemon && (
+          ) : (
             <p className="text-gray-500">No Pokémon found with the selected criteria.</p>
           )}
         </CardContent>
