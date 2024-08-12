@@ -6,13 +6,25 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
+// Define the Pokemon interface
+interface Pokemon {
+  name: string;
+  imageUrl?: string;
+  types: string[];
+  hp: string;
+  attacks: {
+    name: string;
+    damage: string;
+  }[];
+}
+
 export default function Component() {
   const [series, setSeries] = useState("")
   const [rarity, setRarity] = useState("")
   const [type, setType] = useState("")
-  const [pokemon, setPokemon] = useState(null)
+  const [pokemon, setPokemon] = useState<Pokemon | null>(null)
 
-  const handleSearch = async (e) => {
+  const handleSearch = async (e: { preventDefault: () => void }) => {
     e.preventDefault()
     try {
       const response = await fetch("/api/getPokemon", {
@@ -20,7 +32,7 @@ export default function Component() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ series, rarity, type }),  // Only send series, rarity, and type
+        body: JSON.stringify({ series, rarity, type }),
       });
       const data = await response.json();
       if (data.documents && data.documents.length > 0) {
@@ -50,7 +62,6 @@ export default function Component() {
               <SelectContent>
                 <SelectItem value="Sun & Moon">Sun & Moon</SelectItem>
                 <SelectItem value="Sword & Shield">Sword & Shield</SelectItem>
-                {/* Add more series as needed */}
               </SelectContent>
             </Select>
 
@@ -62,7 +73,6 @@ export default function Component() {
                 <SelectItem value="Common">Common</SelectItem>
                 <SelectItem value="Uncommon">Uncommon</SelectItem>
                 <SelectItem value="Rare">Rare</SelectItem>
-                {/* Add more rarities as needed */}
               </SelectContent>
             </Select>
 
@@ -74,7 +84,6 @@ export default function Component() {
                 <SelectItem value="Grass">Grass</SelectItem>
                 <SelectItem value="Fire">Fire</SelectItem>
                 <SelectItem value="Water">Water</SelectItem>
-                {/* Add more types as needed */}
               </SelectContent>
             </Select>
 
@@ -85,6 +94,7 @@ export default function Component() {
           {pokemon && (
             <div className="grid grid-cols-2 gap-4">
               {pokemon.imageUrl && (
+                // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={pokemon.imageUrl}
                   alt={pokemon.name}

@@ -1,11 +1,13 @@
-// app/api/getPokemon/route.js
+import { NextRequest, NextResponse } from 'next/server';
 
-export async function POST(req) {
+// app/api/getPokemon/route.ts
+
+export async function POST(req: NextRequest) {
   try {
     const { series, rarity, type } = await req.json();
 
     // Build the MongoDB query based on provided criteria
-    const matchQuery = {};
+    const matchQuery: Record<string, any> = {};
 
     if (series) {
       matchQuery.series = series;
@@ -21,7 +23,7 @@ export async function POST(req) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "api-key": process.env.MONGODB_API_KEY,
+        "api-key": process.env.MONGODB_API_KEY!,
       },
       body: JSON.stringify({
         collection: "pokemon_cards",
@@ -36,13 +38,13 @@ export async function POST(req) {
     if (!response.ok) {
       const errorText = await response.text();
       console.error("Error response from MongoDB API:", errorText);
-      return new Response(JSON.stringify({ error: "Failed to fetch data from MongoDB API" }), { status: 500 });
+      return NextResponse.json({ error: "Failed to fetch data from MongoDB API" }, { status: 500 });
     }
 
     const data = await response.json();
-    return new Response(JSON.stringify(data), { status: 200 });
+    return NextResponse.json(data, { status: 200 });
   } catch (error) {
     console.error("Error fetching Pokemon data:", error);
-    return new Response(JSON.stringify({ error: "Failed to fetch data from MongoDB" }), { status: 500 });
+    return NextResponse.json({ error: "Failed to fetch data from MongoDB" }, { status: 500 });
   }
 }
