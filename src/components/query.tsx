@@ -4,6 +4,7 @@ import { useState } from "react"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import MultiSelectFormField from "@/components/ui/multiSelect"
+import Image from "next/image"  // Import the Next.js Image component
 
 interface Pokemon {
   name: string;
@@ -37,6 +38,7 @@ export default function Component() {
         body: JSON.stringify({ types, rarity }),  // Send types and rarity as filters
       });
       const data = await response.json();
+      console.log("Data:", data);
       if (data.documents && data.documents.length > 0) {
         setPokemonList(data.documents); // Store the array of Pokémon
       } else {
@@ -85,13 +87,15 @@ export default function Component() {
               {pokemonList.map((pokemon, idx) => (
                 <Card key={idx} className="p-4 shadow-lg rounded-lg min-w-[200px]">
                   {pokemon.imageUrl && (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={pokemon.imageUrl}
-                      alt={pokemon.name}
-                      className="rounded-lg mb-4 w-full"
-                      style={{ objectFit: "cover" }}
-                    />
+                    <div className="relative w-full h-64">
+                      <Image
+                        src={pokemon.imageUrl}
+                        alt={pokemon.name}
+                        layout="fill"
+                        objectFit="cover"
+                        className="rounded-lg"
+                      />
+                    </div>
                   )}
                   <CardContent>
                     <h3 className="text-xl font-bold mb-2">{pokemon.name}</h3>
