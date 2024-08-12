@@ -8,18 +8,23 @@ import MultiSelectFormField from "@/components/ui/multiSelect"
 interface Pokemon {
   name: string;
   imageUrl?: string;
-  types?: string[]; // Mark types as optional
+  types?: string[];
   hp?: string;
-  attacks?: {
+  ability?: {
+    name: string;
+    text: string;
+  };
+  attacks: {
     name: string;
     damage: string;
+    text: string;
   }[];
 }
 
 export default function Component() {
   const [types, setTypes] = useState<string[]>([])
   const [rarity, setRarity] = useState("")
-  const [pokemonList, setPokemonList] = useState<Pokemon[]>([]) // Change to an array
+  const [pokemonList, setPokemonList] = useState<Pokemon[]>([]) // Store the list of Pokémon
 
   const handleSearch = async (e: { preventDefault: () => void }) => {
     e.preventDefault()
@@ -29,7 +34,7 @@ export default function Component() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ types, rarity }),  // Send types as an array
+        body: JSON.stringify({ types, rarity }),  // Send types and rarity as filters
       });
       const data = await response.json();
       if (data.documents && data.documents.length > 0) {
@@ -44,8 +49,8 @@ export default function Component() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen bg-gradient-to-b from-[#f0f0f0] to-[#e0e0e0]">
-      <Card className="w-full max-w-md p-6 bg-white shadow-lg rounded-lg">
+    <div className="flex flex-col items-center justify-center h-full w-full bg-gradient-to-b from-[#f0f0f0] to-[#e0e0e0] p-6">
+      <Card className="w-screen p-6 bg-white shadow-lg rounded-lg mb-8">
         <CardHeader>
           <CardTitle className="text-2xl font-bold">Pokemon Search</CardTitle>
           <CardDescription>Query Pokemon based on Types and Rarity.</CardDescription>
@@ -76,37 +81,45 @@ export default function Component() {
           </form>
           
           {pokemonList.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {pokemonList.map((pokemon, idx) => (
-                <Card key={idx} className="mb-4">
+                <Card key={idx} className="p-4 shadow-lg rounded-lg min-w-[200px]">
                   {pokemon.imageUrl && (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
                       src={pokemon.imageUrl}
                       alt={pokemon.name}
-                      width={200}
-                      height={200}
-                      className="rounded-lg"
-                      style={{ aspectRatio: "200/200", objectFit: "cover" }}
+                      className="rounded-lg mb-4 w-full"
+                      style={{ objectFit: "cover" }}
                     />
                   )}
                   <CardContent>
-                    <h3 className="text-xl font-bold">{pokemon.name}</h3>
+                    <h3 className="text-xl font-bold mb-2">{pokemon.name}</h3>
                     {pokemon.types && pokemon.types.length > 0 && (
                       <p className="text-gray-500 mb-2">Type: {pokemon.types.join(", ")}</p>
                     )}
                     {pokemon.hp && (
                       <p className="text-gray-500 mb-2">HP: {pokemon.hp}</p>
                     )}
-                    <h4 className="font-semibold mt-2">Attacks:</h4>
-                    <div className="grid grid-cols-2 gap-2">
-                      {pokemon.attacks?.map((attack, attackIdx) => (
-                        <div key={attackIdx} className="flex items-center">
-                          <span className="font-medium">{attack.name}:</span>
-                          <span className="ml-2">{attack.damage}</span>
+                    {pokemon.ability && (
+                      <div className="mb-2">
+                        <h4 className="font-semibold">{pokemon.ability.name}</h4>
+                        <p className="text-gray-500">{pokemon.ability.text}</p>
+                      </div>
+                    )}
+                    {pokemon.attacks && pokemon.attacks.length > 0 && (
+                      <>
+                        <h4 className="font-semibold mt-2">Attacks:</h4>
+                        <div className="grid grid-cols-2 gap-2">
+                          {pokemon.attacks.map((attack, attackIdx) => (
+                            <div key={attackIdx} className="flex items-center">
+                              <span className="font-medium">{attack.name}:</span>
+                              <span className="ml-2">{attack.damage}</span>
+                            </div>
+                          ))}
                         </div>
-                      ))}
-                    </div>
+                      </>
+                    )}
                   </CardContent>
                 </Card>
               ))}

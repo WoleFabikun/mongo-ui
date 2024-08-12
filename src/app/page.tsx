@@ -3,8 +3,8 @@ import Component from "@/components/query"; // Assuming this is your search comp
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-24 bg-gradient-to-b from-green-200 to-blue-200">
-      <div className="text-center">
+    <main className="flex min-h-screen w-full flex-col items-center justify-center p-12 bg-gradient-to-b from-green-200 to-blue-200">
+      <div className="text-center mb-12">
         <Image
           src="/pokemon-logo.png"
           alt="Pokémon Logo"
@@ -17,9 +17,9 @@ export default function Home() {
         <p className="text-lg text-gray-600 mb-8">
           Search for your favorite Pokémon cards and explore detailed information.
         </p>
-        <div className="w-full max-w-md mx-auto">
-          <Component />
-        </div>
+      </div>
+      <div className="flex w-full max-w-7xl justify-center">
+        <Component />
       </div>
     </main>
   );
