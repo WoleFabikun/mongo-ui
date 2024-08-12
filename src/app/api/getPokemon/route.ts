@@ -1,23 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-// app/api/getPokemon/route.ts
-
 export async function POST(req: NextRequest) {
   try {
-    const { series, rarity, type } = await req.json();
+    const { types, rarity } = await req.json();
 
-    // Build the MongoDB query based on provided criteria
-    const matchQuery: Record<string, any> = {};
+    // Build the MongoDB match stage based on provided criteria
+    const matchStage: Record<string, any> = {};
 
-    if (series) {
-      matchQuery.series = series;
-    }
+
     if (rarity) {
-      matchQuery.rarity = rarity;
+      matchStage.rarity = rarity;
     }
-    if (type) {
-      matchQuery.types = type;  // Assuming `types` is an array and we're matching on a single type
+    if (types) {
+      matchStage.types = types;
     }
+
+    console.log("Match stage:", matchStage);
+
+    // Define the pipeline for MongoDB aggregation
+    const pipeline = [
+      { $match: matchStage },  // Apply the match stage based on the user's filters
+      // Add additional stages as needed, e.g., $group, $sort, etc.
+    ];
 
     const response = await fetch("https://us-east-1.aws.data.mongodb-api.com/app/data-auclety/endpoint/data/v1/action/aggregate", {
       method: "POST",
@@ -30,8 +34,10 @@ export async function POST(req: NextRequest) {
         database: "employee_db",
         dataSource: "Cluster0",
         pipeline: [
-          { $match: matchQuery }  // Apply the built query to the match stage
-        ]
+      {
+        "$match": { "types": types }
+      } 
+    ]
       }),
     });
 

@@ -92,7 +92,7 @@ export default function Component() {
                         src={pokemon.imageUrl}
                         alt={pokemon.name}
                         layout="fill"
-                        objectFit="cover"
+                        objectFit="contain"  // Ensure the image fits within its container while maintaining its aspect ratio
                         className="rounded-lg"
                       />
                     </div>
